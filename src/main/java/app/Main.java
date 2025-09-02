@@ -1,6 +1,7 @@
 package app;
 
 import app.DAO.DolphinDAOImpl;
+import app.DTO.NoteInfoDTO;
 import app.config.HibernateConfig;
 import app.entities.Fee;
 import app.entities.Note;
@@ -15,7 +16,6 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
-        EntityManager em = emf.createEntityManager();
         DolphinDAOImpl dolphinDAO = new DolphinDAOImpl(emf);
         try {
             Person p1 = new Person("Alissa");
@@ -40,6 +40,10 @@ public class Main {
 
             List<Note> notes = dolphinDAO.GetAllNotes(p1.getId());
             notes.forEach(System.out::println);
+
+            List<NoteInfoDTO> noteInfos = dolphinDAO.AllNotesWithNameAndAge();
+
+            noteInfos.forEach(System.out::println);
 
         } finally {
             emf.close();

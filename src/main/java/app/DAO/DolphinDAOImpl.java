@@ -1,5 +1,6 @@
 package app.DAO;
 
+import app.DTO.NoteInfoDTO;
 import app.entities.Note;
 import app.entities.Person;
 import jakarta.persistence.*;
@@ -95,6 +96,21 @@ public class DolphinDAOImpl implements DolphinDAO {
             TypedQuery<Note> query = em.createQuery("SELECT n FROM Note n WHERE n.person.id = :personId", Note.class)
                     .setParameter("personId", personId);
             return query.getResultList();
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    //US-4: As an administrator I would like to get a list of all notes with the name and age of the person it belongs to.
+    public List<NoteInfoDTO> AllNotesWithNameAndAge(){
+        EntityManager em = emf.createEntityManager();
+        try{
+            return em.createQuery("SELECT new app.DTO.NoteInfoDTO(n.text, p.name, pd.age) " +
+                    "FROM Note n " +
+                    "JOIN n.person p " +
+                    "JOIN p.personDetail pd", NoteInfoDTO.class)
+                    .getResultList();
         }
         finally {
             em.close();

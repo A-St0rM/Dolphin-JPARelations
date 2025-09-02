@@ -11,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+@ToString(exclude = {"personDetail", "fees", "notes"})
 @Entity
 public class Person {
     @Id
