@@ -1,11 +1,11 @@
 package app.DAO;
 
+import app.entities.Note;
 import app.entities.Person;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 
+import java.io.NotActiveException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class DolphinDAOImpl implements DolphinDAO {
@@ -64,6 +64,39 @@ public class DolphinDAOImpl implements DolphinDAO {
         } catch (RuntimeException e) {
             throw e;
         } finally {
+            em.close();
+        }
+    }
+
+    //US-2: As an administrator I would like to be able to get the total amount paid for a given person.
+    public int getTotalPaidUpToToday(int personId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            LocalDate today = LocalDate.now();
+            Long sum = em.createQuery(
+                            "SELECT SUM(f.amount) " +
+                                    "FROM Fee f " +
+                                    "WHERE f.person.id = :pid " +
+                                    "  AND f.payDate IS NOT NULL " +
+                                    "  AND f.payDate <= :today", Long.class)
+                    .setParameter("pid", personId)
+                    .setParameter("today", today)
+                    .getSingleResult();
+            return sum.intValue(); // amount is int → SUM returns Long
+        } finally {
+            em.close();
+        }
+    }
+
+    //US-3: As an administrator I would like to be able to get a list of all notes for a given person
+    public List<Note> GetAllNotes(int personId){
+        EntityManager em = emf.createEntityManager();
+        try{
+            TypedQuery<Note> query = em.createQuery("SELECT n FROM Note n WHERE n.person.id = :personId", Note.class)
+                    .setParameter("personId", personId);
+            return query.getResultList();
+        }
+        finally {
             em.close();
         }
     }
